@@ -3,41 +3,47 @@ import { useSelector, useDispatch } from 'react-redux';
 import { removeItem, updateQuantity } from './CreatSlice';
 import './CartItem.css';
 
+
 const Cart = ({ onContinueShopping }) => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-    dispatch(cart.map((item) => (
-      item.cost * item.quantity
-    )))
-
+    return cart.reduce((total, item) => (
+      total + item.cost * item.quantity, 0
+    ))
   };
 
   const handleContinueShopping = (e) => {
-
+    if (onContinueShopping) {
+      onContinueShopping();
+    }
   };
 
-
-
   const handleIncrement = (item) => {
+    dispatch(updateQuantity({ ...item, quantity: item.quantity + 1 }))
   };
 
   const handleDecrement = (item) => {
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({ ...item, quantity: item.quantity - 1 }))
+    }
 
   };
 
   const handleRemove = (item) => {
+    dispatch(removeItem(item))
   };
 
   // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
+    return item.cost + item.quantity;
   };
 
   return (
     <div className="cart-container">
-      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
+      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount().toFixed(2)}</h2>
       <div>
         {cart.map(item => (
           <div className="cart-item" key={item.name}>
@@ -50,7 +56,7 @@ const Cart = ({ onContinueShopping }) => {
                 <span className="cart-item-quantity-value"></span>
                 <button className="cart-item-button cart-item-button-inc" onClick={() => handleIncrement(item)}>+</button>
               </div>
-              <div className="cart-item-total">Total: ${calculateTotalCost(item)}</div>
+              <div className="cart-item-total">Total: ${calculateTotalCost(item).toFixed(2)}</div>
               <button className="cart-item-delete" onClick={() => handleRemove(item)}>Delete</button>
             </div>
           </div>
@@ -67,5 +73,3 @@ const Cart = ({ onContinueShopping }) => {
 };
 
 export default Cart;
-
-
